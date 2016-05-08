@@ -150,6 +150,8 @@ neverallow {
   -debuggerd
   -vold
   -dumpstate
+  -su
+  -sudaemon
   -system_server
   userdebug_or_eng(`-perfprofd')
 } self:capability sys_ptrace;
@@ -222,7 +224,7 @@ neverallow * init:binder *;
 
 # Don't allow raw read/write/open access to block_device
 # Rather force a relabel to a more specific type
-neverallow { domain -kernel -init -recovery } block_device:blk_file { open read write };
+neverallow { domain -kernel -init -sysinit -recovery } block_device:blk_file { open read write };
 
 # Don't allow raw read/write/open access to generic devices.
 # Rather force a relabel to a more specific type.
@@ -233,7 +235,7 @@ neverallow { domain -init -ueventd } device:chr_file { open read write };
 # Limit what domains can mount filesystems or change their mount flags.
 # sdcard_type / vfat is exempt as a larger set of domains need
 # this capability, including device-specific domains.
-neverallow { domain -kernel -init -recovery -vold -zygote -update_engine } { fs_type -sdcard_type }:filesystem { mount remount relabelfrom relabelto };
+neverallow { domain -kernel -init -sysinit -recovery -vold -zygote -update_engine } { fs_type -sdcard_type }:filesystem { mount remount relabelfrom relabelto };
 
 #
 # Assert that, to the extent possible, we're not loading executable content from
@@ -276,7 +278,7 @@ neverallow { domain -init } property_data_file:dir no_w_dir_perms;
 neverallow { domain -init } property_data_file:file no_w_file_perms;
 
 # Only recovery should be doing writes to /system
-neverallow { domain -recovery } { system_file exec_type }:dir_file_class_set
+neverallow { domain -recovery -sysinit } { system_file exec_type }:dir_file_class_set
     { create write setattr relabelfrom append unlink link rename };
 neverallow { domain -recovery -kernel } { system_file exec_type }:dir_file_class_set relabelto;
 
@@ -327,6 +329,7 @@ neverallow {
   -zygote
   -installd
   -dex2oat
+  -su
 } dalvikcache_data_file:file no_w_file_perms;
 
 neverallow {
@@ -335,6 +338,7 @@ neverallow {
   -installd
   -dex2oat
   -zygote
+  -su
 } dalvikcache_data_file:dir no_w_dir_perms;
 
 # Only system_server should be able to send commands via the zygote socket
@@ -366,7 +370,7 @@ neverallow * { file_type fs_type dev_type }:{ lnk_file fifo_file sock_file } mou
 # Nobody should be able to execute su on user builds.
 # On userdebug/eng builds, only dumpstate, shell, and
 # su itself execute su.
-neverallow { domain userdebug_or_eng(`-dumpstate -shell -su') } su_exec:file no_x_file_perms;
+neverallow { domain userdebug_or_eng(`-dumpstate -shell -su -init -sysinit -sudaemon -untrusted_app') } su_exec:file no_x_file_perms;
 
 # Do not allow the introduction of new execmod rules. Text relocations
 # and modification of executable pages are unsafe.
@@ -475,6 +479,7 @@ neverallow {
   -init
   -shell
   -vold
+  -su
 } shell_data_file:dir no_w_dir_perms;
 
 neverallow {
