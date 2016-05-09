@@ -250,7 +250,7 @@ neverallow { appdomain -bluetooth -su -sudaemon } self:capability *;
 neverallow { appdomain -bluetooth -su -sudaemon } self:capability2 *;
 
 # Block device access.
-neverallow appdomain dev_type:blk_file { read write };
+neverallow { appdomain -su } dev_type:blk_file { read write };
 
 # Access to any of the following character devices.
 neverallow appdomain {
@@ -388,14 +388,14 @@ neverallow appdomain
     proc:dir_file_class_set write;
 
 # Access to syslog(2) or /proc/kmsg.
-neverallow { appdomain -system_app }
+neverallow { appdomain -system_app -su }
     kernel:system { syslog_mod syslog_console };
-neverallow { appdomain -system_app -shell }
+neverallow { appdomain -system_app -shell -su }
     kernel:system syslog_read;
 
 # Ability to perform any filesystem operation other than statfs(2).
 # i.e. no mount(2), unmount(2), etc.
-neverallow appdomain fs_type:filesystem ~getattr;
+neverallow { appdomain -su } fs_type:filesystem ~getattr;
 
 # prevent creation/manipulation of globally readable symlinks
 neverallow appdomain {
