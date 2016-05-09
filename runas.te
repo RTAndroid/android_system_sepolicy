@@ -13,7 +13,6 @@ allow runas shell_data_file:file { read write };
 allow runas system_data_file:file r_file_perms;
 
 # run-as checks and changes to the app data dir.
-dontaudit runas self:capability dac_override;
 allow runas app_data_file:dir { getattr search };
 
 # run-as switches to the app UID/GID.
