@@ -2,24 +2,3 @@ type sysinit, domain;
 type sysinit_exec, exec_type, file_type;
 
 init_daemon_domain(sysinit)
-
-allow sysinit block_device:blk_file { ioctl open read };
-allow sysinit cache_file:dir getattr;
-allow sysinit devpts:chr_file { rw_file_perms };
-allow sysinit init:unix_stream_socket connectto;
-allow sysinit kernel:process setsched;
-allow sysinit labeledfs:filesystem remount;
-allow sysinit property_socket:sock_file write;
-allow sysinit self:capability { dac_override fsetid setgid setuid };
-allow sysinit self:process setcurrent;
-allow sysinit shell_exec:file { rx_file_perms };
-allow sysinit storage_file:dir getattr;
-allow sysinit su_exec:file { execute execute_no_trans getattr setattr open read };
-allow sysinit sysfs:file rw_file_perms;
-allow sysinit sysfs_devices_system_cpu:file write;
-allow sysinit system_file:file { rx_file_perms };
-allow sysinit toolbox_exec:file { read getattr open execute execute_no_trans };
-allow sysinit userinit_data_exec:file { r_file_perms relabelto };
-allow sysinit userinit_exec:dir { search read getattr open };
-allow sysinit userinit_exec:file { rx_file_perms setattr };
-allow sysinit userinit_prop:property_service set;
