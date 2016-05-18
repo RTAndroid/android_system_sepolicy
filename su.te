@@ -1,6 +1,9 @@
 # File types must be defined for file_contexts.
 type su_exec, exec_type, file_type;
 
+# Daemon must be defined for the most targets
+type sudaemon, domain;
+
 userdebug_or_eng(`
   # Domain used for su processes, as well as for adbd and adb shell
   # after performing an adb root command.  The domain definition is
