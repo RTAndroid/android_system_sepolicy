@@ -542,29 +542,6 @@ neverallow { domain -su } domain:file { execute execute_no_trans entrypoint };
 # TODO: fix system_server and dumpstate
 neverallow { domain -init -system_server -dumpstate -su } debugfs:file no_rw_file_perms;
 
-neverallow {
-  domain
-  -init
-  -recovery
-  -sdcardd
-  -vold
-  -su
-} fuse_device:chr_file open;
-
-neverallow {
-  domain
-  -dumpstate
-  -init
-  -priv_app
-  -recovery
-  -sdcardd
-  -system_server
-  -ueventd
-  -vold
-  -su
-  -platform_app
-} fuse_device:chr_file *;
-
 # Enforce restrictions on kernel module origin.
 # Do not allow kernel module loading except from system,
 # vendor, and boot partitions.
