@@ -1,5 +1,6 @@
 # Domain for update_engine daemon.
-type update_engine, domain, domain_deprecated;
+# update_engine uses the boot_control_hal.
+type update_engine, domain, domain_deprecated, boot_control_hal;
 type update_engine_exec, exec_type, file_type;
 type update_engine_data_file, file_type, data_file_type;
 
@@ -23,6 +24,11 @@ allow update_engine block_device:dir search;
 # Allow read/write on system and boot partitions.
 allow update_engine boot_block_device:blk_file rw_file_perms;
 allow update_engine system_block_device:blk_file rw_file_perms;
+
+# Allow to set recovery options in the BCB. Used to trigger factory reset when
+# the update to an older version (channel change) or incompatible version
+# requires it.
+allow update_engine misc_block_device:blk_file rw_file_perms;
 
 # Allow update_engine to mount on the /postinstall directory and reset the
 # labels on the mounted filesystem to postinstall_file.
@@ -49,6 +55,3 @@ allow update_engine update_engine_service:service_manager { add };
 
 # Allow update_engine to call the callback function provided by priv_app.
 binder_call(update_engine, priv_app)
-
-# Allow read/write bootctrl block device.
-allow update_engine bootctrl_block_device:blk_file rw_file_perms;

@@ -201,15 +201,29 @@ neverallow * kernel:security setbool;
 # that could be set from init.rc.
 neverallow { domain -init -su } kernel:security setsecparam;
 
-# Only init, ueventd and system_server should be able to access HW RNG
-neverallow { domain -init -system_server -ueventd -su } hw_random_device:chr_file *;
+# Only init, ueventd, shell and system_server should be able to access HW RNG
+neverallow {
+  domain
+  -init
+  -shell # For CTS and is restricted to getattr in shell.te
+  -su
+  -system_server
+  -ueventd
+} hw_random_device:chr_file *;
 
 # Ensure that all entrypoint executables are in exec_type or postinstall_file.
 neverallow { domain -su } { file_type -exec_type -postinstall_file }:file entrypoint;
 
 # Ensure that nothing in userspace can access /dev/mem or /dev/kmem
-neverallow { domain -kernel -ueventd -init -su } kmem_device:chr_file *;
-neverallow { domain -su } kmem_device:chr_file ~{ create relabelto unlink setattr };
+neverallow {
+  domain
+  -init
+  -kernel
+  -shell # For CTS and is restricted to getattr in shell.te
+  -su
+  -ueventd # Further restricted in ueventd.te
+} kmem_device:chr_file *;
+neverallow { domain -su } kmem_device:chr_file ~{ create relabelto unlink setattr getattr };
 
 # Only init should be able to configure kernel usermodehelpers or
 # security-sensitive proc settings.
@@ -275,9 +289,12 @@ neverallow {
 
 neverallow { domain -shell -su } nativetest_data_file:file no_x_file_perms;
 
-# Only the init property service should write to /data/property.
+# Only the init property service should write to /data/property and /dev/__properties__
 neverallow { domain -init -su } property_data_file:dir no_w_dir_perms;
-neverallow { domain -init -su } property_data_file:file no_w_file_perms;
+neverallow { domain -init -su } property_data_file:file { no_w_file_perms no_x_file_perms };
+neverallow { domain -init -su } property_type:file { no_w_file_perms no_x_file_perms };
+neverallow { domain -init -su } properties_device:file { no_w_file_perms no_x_file_perms };
+neverallow { domain -init -su } properties_serial:file { no_w_file_perms no_x_file_perms };
 
 # Only recovery should be doing writes to /system
 neverallow { domain -recovery -sysinit -su } { system_file exec_type }:dir_file_class_set
@@ -313,13 +330,36 @@ neverallow { domain -su } default_android_service:service_manager add;
 neverallow { domain -init -su } default_prop:property_service set;
 neverallow { domain -init -su } mmc_prop:property_service set;
 
-neverallow { domain -init -recovery -system_server -su } frp_block_device:blk_file rw_file_perms;
+neverallow {
+  domain
+  -init
+  -recovery
+  -system_server
+  -shell # Shell is further restricted in shell.te
+  -su
+  -ueventd # Further restricted in ueventd.te
+} frp_block_device:blk_file rw_file_perms;
 
 # No domain other than recovery and update_engine can write to system partition(s).
 neverallow { domain -recovery -update_engine -su } system_block_device:blk_file write;
 
 # No domains other than install_recovery or recovery can write to recovery.
 neverallow { domain -install_recovery -recovery -su } recovery_block_device:blk_file write;
+
+# No domains other than a select few can access the misc_block_device. This
+# block device is reserved for OTA use.
+# Do not assert this rule on userdebug/eng builds, due to some devices using
+# this partition for testing purposes.
+neverallow {
+  domain
+  userdebug_or_eng(`-domain') # exclude debuggable builds
+  -init
+  -uncrypt
+  -update_engine
+  -vold
+  -recovery
+  -ueventd
+} misc_block_device:blk_file { append link relabelfrom rename write open read ioctl lock };
 
 # Only servicemanager should be able to register with binder as the context manager
 neverallow { domain -servicemanager -su } *:binder set_context_mgr;
@@ -381,7 +421,6 @@ neverallow { domain userdebug_or_eng(`-dumpstate -shell -su -init -sysinit -suda
 # which, long term, need to go away.
 neverallow { domain -su } {
   file_type
-  -system_data_file
   -apk_data_file
   -app_data_file
   -asec_public_file
@@ -541,6 +580,27 @@ neverallow { domain -su } domain:file { execute execute_no_trans entrypoint };
 # more specific label.
 # TODO: fix system_server and dumpstate
 neverallow { domain -init -system_server -dumpstate -su } debugfs:file no_rw_file_perms;
+neverallow {
+  domain
+  -init
+  -recovery
+  -sdcardd
+  -su
+  -vold
+} fuse_device:chr_file open;
+neverallow {
+  domain
+  -dumpstate
+  -init
+  -priv_app
+  -recovery
+  -sdcardd
+  -shell # Restricted by shell.te to only getattr
+  -su
+  -system_server
+  -ueventd
+  -vold
+} fuse_device:chr_file *;
 
 # Enforce restrictions on kernel module origin.
 # Do not allow kernel module loading except from system,

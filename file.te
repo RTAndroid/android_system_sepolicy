@@ -23,7 +23,6 @@ type selinuxfs, fs_type, mlstrustedobject;
 type cgroup, fs_type, mlstrustedobject;
 type sysfs, fs_type, sysfs_type, mlstrustedobject;
 type sysfs_uio, sysfs_type, fs_type;
-type sysfs_writable, fs_type, sysfs_type, mlstrustedobject;
 type sysfs_batteryinfo, fs_type, sysfs_type;
 type sysfs_bluetooth_writable, fs_type, sysfs_type, mlstrustedobject;
 type sysfs_hwrandom, fs_type, sysfs_type;
@@ -93,8 +92,6 @@ type dalvikcache_data_file, file_type, data_file_type;
 type resourcecache_data_file, file_type, data_file_type;
 # /data/local - writable by shell
 type shell_data_file, file_type, data_file_type, mlstrustedobject;
-# /data/gps
-type gps_data_file, file_type, data_file_type;
 # /data/property
 type property_data_file, file_type, data_file_type;
 # /data/bootchart
@@ -189,7 +186,6 @@ type bluetooth_socket, file_type;
 type dnsproxyd_socket, file_type, mlstrustedobject;
 type dumpstate_socket, file_type;
 type fwmarkd_socket, file_type, mlstrustedobject;
-type gps_socket, file_type;
 type installd_socket, file_type;
 type lmkd_socket, file_type;
 type logd_socket, file_type, mlstrustedobject;
@@ -200,7 +196,7 @@ type mdnsd_socket, file_type, mlstrustedobject;
 type misc_logd_file, file_type;
 type mtpd_socket, file_type;
 type netd_socket, file_type;
-type property_socket, file_type;
+type property_socket, file_type, mlstrustedobject;
 type racoon_socket, file_type;
 type rild_socket, file_type;
 type rild_debug_socket, file_type;
@@ -219,7 +215,7 @@ type property_contexts, file_type;
 # Allow files to be created in their appropriate filesystems.
 allow fs_type self:filesystem associate;
 allow sysfs_type sysfs:filesystem associate;
-allow debugfs_type debugfs:filesystem associate;
+allow debugfs_type { debugfs debugfs_tracing }:filesystem associate;
 allow file_type labeledfs:filesystem associate;
 allow file_type tmpfs:filesystem associate;
 allow file_type rootfs:filesystem associate;

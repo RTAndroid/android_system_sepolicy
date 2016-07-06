@@ -84,9 +84,6 @@ userdebug_or_eng(`
 # gdbserver for ndk-gdb ptrace attaches to app process.
 allow untrusted_app self:process ptrace;
 
-# TODO: switch to meminfo service
-allow untrusted_app proc_meminfo:file r_file_perms;
-
 # access /proc/net/xt_qtguid/stats
 r_dir_file(untrusted_app, proc_net)
 
@@ -143,10 +140,6 @@ neverallow untrusted_app sysfs_mac_address:file no_rw_file_perms;
 # Do not allow untrusted_app access to /cache
 neverallow untrusted_app { cache_file cache_recovery_file }:dir ~{ r_dir_perms };
 neverallow untrusted_app { cache_file cache_recovery_file }:file ~{ read getattr };
-
-# Do not allow untrusted_app to set system properties.
-neverallow untrusted_app property_socket:sock_file write;
-neverallow untrusted_app property_type:property_service set;
 
 # Do not allow untrusted_app to create/unlink files outside of its sandbox,
 # internal storage or sdcard.

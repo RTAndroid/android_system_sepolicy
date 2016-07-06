@@ -70,10 +70,6 @@ allow appdomain surfaceflinger:unix_stream_socket { read write setopt getattr ge
 allow { appdomain -isolated_app } app_data_file:dir create_dir_perms;
 allow { appdomain -isolated_app } app_data_file:notdevfile_class_set create_file_perms;
 
-# lib subdirectory of /data/data dir is system-owned.
-allow appdomain system_data_file:dir r_dir_perms;
-allow appdomain system_data_file:file { execute execute_no_trans open execmod };
-
 # Traverse into expanded storage
 allow appdomain mnt_expand_file:dir r_dir_perms;
 
@@ -209,6 +205,9 @@ allow appdomain console_device:chr_file { read write };
 
 allow { appdomain -isolated_app } ion_device:chr_file rw_file_perms;
 
+# TODO: switch to meminfo service
+allow appdomain proc_meminfo:file r_file_perms;
+
 # For app fuse.
 allow appdomain app_fuse_file:file { getattr read append write };
 
@@ -255,11 +254,11 @@ neverallow { appdomain -su } dev_type:blk_file { read write };
 # Access to any of the following character devices.
 neverallow { appdomain -su } {
     audio_device
-    video_device
+    camera_device
     dm_device
     radio_device
-    gps_device
     rpmsg_device
+    video_device
 }:chr_file { read write };
 
 # Note: Try expanding list of app domains in the future.
