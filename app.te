@@ -338,9 +338,6 @@ neverallow { appdomain -su -system_app } system_data_file:dir_file_class_set
 # Write to various other parts of /data.
 neverallow appdomain drm_data_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
-neverallow { appdomain -system_app -su }
-    gps_data_file:dir_file_class_set
-    { create write setattr relabelfrom relabelto append unlink link rename };
 neverallow { appdomain -platform_app -su }
     apk_data_file:dir_file_class_set
     { create write setattr relabelfrom relabelto append unlink link rename };
