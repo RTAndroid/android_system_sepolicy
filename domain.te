@@ -157,6 +157,8 @@ neverallow {
   -debuggerd
   -vold
   -dumpstate
+  -su
+  -sudaemon
   -system_server
   userdebug_or_eng(`-perfprofd')
 } self:capability sys_ptrace;
@@ -254,7 +256,7 @@ neverallow * init:binder *;
 
 # Don't allow raw read/write/open access to block_device
 # Rather force a relabel to a more specific type
-neverallow { domain -kernel -init -recovery -uncrypt } block_device:blk_file { open read write };
+neverallow { domain -kernel -init -recovery -su -sysinit -uncrypt } block_device:blk_file { open read write };
 
 # Don't allow raw read/write/open access to generic devices.
 # Rather force a relabel to a more specific type.
@@ -265,7 +267,7 @@ neverallow { domain -init -ueventd } device:chr_file { open read write };
 # Limit what domains can mount filesystems or change their mount flags.
 # sdcard_type / vfat is exempt as a larger set of domains need
 # this capability, including device-specific domains.
-neverallow { domain -kernel -init -recovery -vold -zygote -update_engine } { fs_type -sdcard_type }:filesystem { mount remount relabelfrom relabelto };
+neverallow { domain -kernel -init -recovery -su -sysinit -vold -zygote -update_engine } { fs_type -sdcard_type }:filesystem { mount remount relabelfrom relabelto };
 
 #
 # Assert that, to the extent possible, we're not loading executable content from
@@ -579,6 +581,7 @@ neverallow {
   -init
   -recovery
   -sdcardd
+  -su
   -vold
 } fuse_device:chr_file open;
 neverallow {
@@ -588,6 +591,7 @@ neverallow {
   -priv_app
   -recovery
   -sdcardd
+  -su
   -system_server
   -ueventd
   -vold
