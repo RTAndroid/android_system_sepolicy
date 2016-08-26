@@ -25,11 +25,6 @@ allow kernel unlabeled:dir search;
 allow kernel usbfs:filesystem mount;
 allow kernel usbfs:dir search;
 
-# Initial setenforce by init prior to switching to init domain.
-# We use dontaudit instead of allow to prevent a kernel spawned userspace
-# process from turning off SELinux once enabled.
-dontaudit kernel self:security setenforce;
-
 # Write to /proc/1/oom_adj prior to switching to init domain.
 allow kernel self:capability sys_resource;
 
